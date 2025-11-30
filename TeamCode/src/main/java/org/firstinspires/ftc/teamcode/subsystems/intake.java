@@ -6,12 +6,13 @@ import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.subsystems.Subsystem;
 import dev.nextftc.hardware.controllable.RunToVelocity;
 import dev.nextftc.hardware.impl.MotorEx;
+import dev.nextftc.hardware.powerable.SetPower;
 
 public class intake implements Subsystem {
     public static final intake INSTANCE = new intake();
     private intake() { }
 
-    private MotorEx motor = new MotorEx("intake");
+    private MotorEx motor = new MotorEx("intake").reversed();
 
 
     private ControlSystem controlSystem = ControlSystem.builder()
@@ -32,7 +33,13 @@ public class intake implements Subsystem {
         return new RunToVelocity(controlSystem, 0).requires(this);
     }
 
+    public Command setp (){
+        return new SetPower(motor, 1).requires(this);
+    }
 
+    public Command setpr (){
+        return new SetPower(motor, -1).requires(this);
+    }
     @Override
     public void periodic() {
         motor.setPower(controlSystem.calculate(motor.getState()));
