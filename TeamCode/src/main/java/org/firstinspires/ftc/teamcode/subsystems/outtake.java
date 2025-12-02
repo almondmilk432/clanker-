@@ -15,6 +15,7 @@ public class outtake implements Subsystem {
     }
 
 
+
     MotorGroup motors = new MotorGroup(
             new MotorEx("outR").reversed(),
             new MotorEx("outL")
