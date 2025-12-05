@@ -6,7 +6,6 @@ import dev.nextftc.core.subsystems.Subsystem;
 import dev.nextftc.hardware.controllable.MotorGroup;
 import dev.nextftc.hardware.controllable.RunToVelocity;
 import dev.nextftc.hardware.impl.MotorEx;
-import dev.nextftc.hardware.powerable.SetPower;
 
 public class outtake implements Subsystem {
     public static final outtake INSTANCE = new outtake();
@@ -17,32 +16,32 @@ public class outtake implements Subsystem {
 
 
     MotorGroup motors = new MotorGroup(
-            new MotorEx("outR").reversed(),
-            new MotorEx("outL")
+            new MotorEx("outL"),
+            new MotorEx("outR").reversed()
     );
 
+
+
     private ControlSystem controlSystem = ControlSystem.builder()
-            .basicFF(11.1, 0 ,0)
+            .velPid(0.005, 0, 0)
+            .basicFF(0.001, 0.02, 0.03)
             .build();
 
 
 
 
-    public Command Out (){
-        return new RunToVelocity(controlSystem, 2500, 1500).requires(this);
+    public Command Outf(){
+        return new RunToVelocity(controlSystem, 1750).requires(this);
+    }
+
+    public Command Outc(){
+        return new RunToVelocity(controlSystem, 1300).requires(this);
     }
 
     public Command Stop (){
         return new RunToVelocity(controlSystem, 0).requires(this);
     }
 
-    public Command setp(){
-        return new SetPower(motors, 0.75).requires(this);
-    }
-
-    public Command setpO (){
-        return new SetPower(motors, 0).requires(this);
-    }
     @Override
     public void periodic() {
         motors.setPower(controlSystem.calculate(motors.getState()));

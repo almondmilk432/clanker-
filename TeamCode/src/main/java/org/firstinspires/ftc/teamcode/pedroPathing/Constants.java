@@ -32,9 +32,9 @@ public class Constants {
             .rightRearMotorName("BR")
             .leftRearMotorName("BL")
             .leftFrontMotorName("FL")
-            .leftFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
+            .leftFrontMotorDirection(DcMotorSimple.Direction.REVERSE)
             .leftRearMotorDirection(DcMotorSimple.Direction.REVERSE)
-            .rightFrontMotorDirection(DcMotorSimple.Direction.REVERSE)
+            .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
             .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
             .useBrakeModeInTeleOp(true)
             .xVelocity(72.51521841935285)
@@ -48,7 +48,7 @@ public class Constants {
             .hardwareMapName("pinpoint")
             .encoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD)
             .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED)
-            .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD);
+            .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED );
 
     public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 1, 1);
 

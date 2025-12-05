@@ -99,7 +99,7 @@ public class tele extends NextFTCOpMode {
         button(()-> gamepad2.dpad_left)
                 .whenBecomesTrue(shootadj.INSTANCE.mid);
         button(()-> gamepad2.dpad_down)
-                .whenBecomesTrue(shootadj.INSTANCE.up);
+                .whenBecomesTrue(shootadj.INSTANCE.low);
 
 
         button(() -> gamepad2.x)
@@ -107,8 +107,12 @@ public class tele extends NextFTCOpMode {
                 .whenBecomesFalse(intake.INSTANCE.In());
 
         button(()-> gamepad2.dpad_right)
-                .whenBecomesTrue(outtake.INSTANCE.Out())
+                .whenBecomesTrue(outtake.INSTANCE.Outf())
                         .whenBecomesFalse(outtake.INSTANCE.Stop());
+
+        button(()-> gamepad2.left_bumper)
+                .whenBecomesTrue(outtake.INSTANCE.Outc())
+                .whenBecomesFalse(outtake.INSTANCE.Stop());
 
 
 
@@ -119,6 +123,11 @@ public class tele extends NextFTCOpMode {
         follower.update();
         telemetryM.update();
         BindingManager.update();
+
+            telemetry.addData("outtake velocity", outtake.getVelocity());
+            telemetry.update();
+
+
 
         if (!automatedDrive) {
             //Make the last parameter false for field-centric

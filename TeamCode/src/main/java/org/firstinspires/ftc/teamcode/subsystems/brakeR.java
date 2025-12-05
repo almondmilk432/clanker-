@@ -13,6 +13,6 @@ public class brakeR implements Subsystem {
 
     private ServoEx servo = new ServoEx("brakeR");
 
-    public Command up = new SetPosition(servo, .425).requires(this);
-    public Command down = new SetPosition(servo, .25).requires(this);
+    public Command up = new SetPosition(servo, .2).requires(this);
+    public Command down = new SetPosition(servo, .32).requires(this);
 }

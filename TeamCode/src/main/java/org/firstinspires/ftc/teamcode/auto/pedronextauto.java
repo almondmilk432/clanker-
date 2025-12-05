@@ -47,18 +47,18 @@ public class pedronextauto extends NextFTCOpMode {
         switch(pathState) {
             case scorepreload:
                 follower.followPath(scorePreload);
-                pathState = Pathstate.motorspin;
+                //pathState = Pathstate.motorspin;
                 break;
 
-            case 1:
-                if (!follower.isBusy()) {
+            //case 1:
+              //  if (!follower.isBusy()) {
                     /* Score Preload */
 
-                }
+                //}
         }
     }
     public void setPathState(int pState) {
-        pathState = pState;
+       // pathState = pState;
         pathTimer.resetTimer();
     }
 
