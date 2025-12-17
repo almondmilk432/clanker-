@@ -19,10 +19,12 @@ public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(7.5)
 
-            .forwardZeroPowerAcceleration(-50.49136350090662)
-            .lateralZeroPowerAcceleration(-61.70639153000654)
-            .translationalPIDFCoefficients(new PIDFCoefficients(0.1, 0, 0.01, 0))
-            .headingPIDFCoefficients(new PIDFCoefficients(1, 0, 0.01, 0))
+            .forwardZeroPowerAcceleration(-35.36916805739986)
+            .lateralZeroPowerAcceleration(-62.68369500608251)
+            .translationalPIDFCoefficients(new PIDFCoefficients(0.2, 0, 0.025, 0))
+            .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.08, 0, 0.01, 0.0))
+            .headingPIDFCoefficients(new PIDFCoefficients(1, 0, 0.05, 0))
+            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(1.5, 0, 0.01, 0))
             .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.008,0.0,0.000009,0.6,0.0));
 
 
@@ -37,13 +39,13 @@ public class Constants {
             .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
             .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
             .useBrakeModeInTeleOp(true)
-            .xVelocity(72.51521841935285)
-            .yVelocity(64.29204024667816);
+            .xVelocity(72.25286817175197)
+            .yVelocity(51.94346174104946);
 
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
-            .forwardPodY(-6.25)//CHANGE
-            .strafePodX(-.75)//CHANGE
+            .forwardPodY(-7.5)//CHANGE
+            .strafePodX(2.25)//CHANGE
             .distanceUnit(DistanceUnit.INCH)
             .hardwareMapName("pinpoint")
             .encoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD)

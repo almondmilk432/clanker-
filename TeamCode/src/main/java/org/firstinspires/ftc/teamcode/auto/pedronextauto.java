@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.auto;
 
+import dev.nextftc.core.components.BindingsComponent;
+import dev.nextftc.core.components.SubsystemComponent;
+import dev.nextftc.ftc.NextFTCOpMode;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
@@ -14,20 +17,34 @@ import org.firstinspires.ftc.teamcode.subsystems.outtake;
 import org.firstinspires.ftc.teamcode.subsystems.shootadj;
 import org.firstinspires.ftc.teamcode.subsystems.stopper;
 
-import dev.nextftc.ftc.NextFTCOpMode;
+import dev.nextftc.core.subsystems.Subsystem;
 
-@Autonomous(name = "pedronextauto", group = "robot")
+
+import dev.nextftc.ftc.NextFTCOpMode;
+import dev.nextftc.ftc.components.BulkReadComponent;
+
+@Autonomous(name = "try this one", group = "robot")
 public class pedronextauto extends NextFTCOpMode {
 
+
+    public pedronextauto () {
+        addComponents(
+                new SubsystemComponent(outtake.INSTANCE, intake.INSTANCE, brakeL.INSTANCE, brakeR.INSTANCE,
+                        shootadj.INSTANCE, stopper.INSTANCE),
+                BulkReadComponent.INSTANCE,
+                BindingsComponent.INSTANCE
+        );
+    }
     private Follower follower;
     private Timer pathTimer, actionTimer, opmodeTimer;
     private boolean pathStarted = false;
 
 
+
     private final Pose startPose = new Pose(51, 9, Math.toRadians(90));
     private final Pose scorePose = new Pose(60, 23, Math.toRadians(115));
     private final Pose goPPG = new Pose(40, 35, Math.toRadians(180));
-    private final Pose gPPG = new Pose(10, 35, Math.toRadians(180));
+    private final Pose gPPG = new Pose(15, 35, Math.toRadians(180));
     private final Pose goPGP = new Pose(60, 23, Math.toRadians(180));
     private final Pose gPGP = new Pose(10, 23, Math.toRadians(180));
     private final Pose goGPP = new Pose(40, 85, Math.toRadians(180));
@@ -50,10 +67,12 @@ public class pedronextauto extends NextFTCOpMode {
     @Override
     public void onInit() {
 
-        brakeL.INSTANCE.up.schedule();
-        brakeR.INSTANCE.up.schedule();
+
+
+        //brakeL.INSTANCE.up.schedule();
+        //brakeR.INSTANCE.up.schedule();
         stopper.INSTANCE.stop.schedule();
-        shootadj.INSTANCE.low.schedule();
+        shootadj.INSTANCE.up.schedule();
 
         pathTimer = new Timer();
         actionTimer = new Timer();
@@ -133,6 +152,8 @@ public class pedronextauto extends NextFTCOpMode {
 
     public void autonomousPathUpdate() {
 
+        if (pathState == null) return;
+
         switch (pathState) {
 
             case scorepreload:
@@ -207,6 +228,7 @@ public class pedronextauto extends NextFTCOpMode {
                 if (actionTimer.getElapsedTimeSeconds() >= 3) {
                     stopper.INSTANCE.stop.schedule();
                     outtake.INSTANCE.Stop().schedule();
+                    pathStarted = false;
                     pathState = Pathstate.gotoPGP;
                 }
                 break;
