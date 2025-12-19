@@ -4,6 +4,7 @@ import dev.nextftc.core.components.BindingsComponent;
 import dev.nextftc.core.components.SubsystemComponent;
 import dev.nextftc.ftc.NextFTCOpMode;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
@@ -17,17 +18,14 @@ import org.firstinspires.ftc.teamcode.subsystems.outtake;
 import org.firstinspires.ftc.teamcode.subsystems.shootadj;
 import org.firstinspires.ftc.teamcode.subsystems.stopper;
 
-import dev.nextftc.core.subsystems.Subsystem;
 
-
-import dev.nextftc.ftc.NextFTCOpMode;
 import dev.nextftc.ftc.components.BulkReadComponent;
 
-@Autonomous(name = "try this one", group = "robot")
-public class pedronextauto extends NextFTCOpMode {
+@Autonomous(name = "redCloseAuto", group = "robot")
+public class redCloseAuto extends NextFTCOpMode {
 
 
-    public pedronextauto () {
+    public redCloseAuto () {
         addComponents(
                 new SubsystemComponent(outtake.INSTANCE, intake.INSTANCE, brakeL.INSTANCE, brakeR.INSTANCE,
                         shootadj.INSTANCE, stopper.INSTANCE),
@@ -35,21 +33,34 @@ public class pedronextauto extends NextFTCOpMode {
                 BindingsComponent.INSTANCE
         );
     }
+
+    private void runPath(PathChain path, Pathstate nextState) {
+        if (!pathStarted) {
+            follower.followPath(path);
+            pathStarted = true;
+        } else if (!follower.isBusy()) {
+            pathStarted = false;
+            pathState = nextState;
+        }
+    }
+
     private Follower follower;
     private Timer pathTimer, actionTimer, opmodeTimer;
     private boolean pathStarted = false;
 
 
 
-    private final Pose startPose = new Pose(51, 9, Math.toRadians(90));
-    private final Pose scorePose = new Pose(60, 23, Math.toRadians(115));
-    private final Pose goPPG = new Pose(40, 35, Math.toRadians(180));
-    private final Pose gPPG = new Pose(15, 35, Math.toRadians(180));
-    private final Pose goPGP = new Pose(60, 23, Math.toRadians(180));
-    private final Pose gPGP = new Pose(10, 23, Math.toRadians(180));
-    private final Pose goGPP = new Pose(40, 85, Math.toRadians(180));
-    private final Pose gGPP = new Pose(15, 85, Math.toRadians(180));
-    private final Pose leave = new Pose(60, 35, Math.toRadians(90));
+    private final Pose startPose = new Pose(122, 122, Math.toRadians(36));
+    private final Pose scorePose = new Pose(95, 95, Math.toRadians(40));
+    private final Pose goPPG = new Pose(100, 83, Math.toRadians(0));
+    private final Pose PPGc = new Pose(90, 95);
+    private final Pose gPPG = new Pose(125, 83, Math.toRadians(0));
+    private final Pose goPGP = new Pose(95, 60, Math.toRadians(0));
+    private final Pose gPGP = new Pose(130, 60, Math.toRadians(0));
+    private final Pose returnPGP = new Pose(100, 55);
+    private final Pose goGPP = new Pose(36, 35, Math.toRadians(180));
+    private final Pose gGPP = new Pose(131, 35, Math.toRadians(180));
+    private final Pose leave = new Pose(90, 125, Math.toRadians(180));
 
     private PathChain scorePreload, gotoPPG, grabPPG, scorePPG;
     private PathChain gotoPGP, grabPGP, scorePGP;
@@ -69,10 +80,10 @@ public class pedronextauto extends NextFTCOpMode {
 
 
 
-        //brakeL.INSTANCE.up.schedule();
-        //brakeR.INSTANCE.up.schedule();
+        brakeL.INSTANCE.up.schedule();
+        brakeR.INSTANCE.up.schedule();
         stopper.INSTANCE.stop.schedule();
-        shootadj.INSTANCE.up.schedule();
+        shootadj.INSTANCE.low().schedule();
 
         pathTimer = new Timer();
         actionTimer = new Timer();
@@ -94,19 +105,22 @@ public class pedronextauto extends NextFTCOpMode {
 
     public void buildPaths() {
 
+
         scorePreload = follower.pathBuilder()
                 .addPath(new BezierLine(startPose, scorePose))
                 .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading())
                 .build();
 
         gotoPPG = follower.pathBuilder()
-                .addPath(new BezierLine(scorePose, goPPG))
+                .addPath(new BezierCurve(scorePose, PPGc, goPPG))
                 .setLinearHeadingInterpolation(scorePose.getHeading(), goPPG.getHeading())
+                .setVelocityConstraint(0.005)
                 .build();
 
         grabPPG = follower.pathBuilder()
                 .addPath(new BezierLine(goPPG, gPPG))
                 .setLinearHeadingInterpolation(goPPG.getHeading(), gPPG.getHeading())
+                .setVelocityConstraint(0.005)
                 .build();
 
         scorePPG = follower.pathBuilder()
@@ -117,26 +131,30 @@ public class pedronextauto extends NextFTCOpMode {
         gotoPGP = follower.pathBuilder()
                 .addPath(new BezierLine(scorePose, goPGP))
                 .setLinearHeadingInterpolation(scorePose.getHeading(), goPGP.getHeading())
+                .setVelocityConstraint(0.1)
                 .build();
 
         grabPGP = follower.pathBuilder()
                 .addPath(new BezierLine(goPGP, gPGP))
                 .setLinearHeadingInterpolation(goPGP.getHeading(), gPGP.getHeading())
+                .setVelocityConstraint(0.05)
                 .build();
 
         scorePGP = follower.pathBuilder()
-                .addPath(new BezierLine(gPGP, scorePose))
+                .addPath(new BezierCurve(gPGP, returnPGP, scorePose))
                 .setLinearHeadingInterpolation(gPGP.getHeading(), scorePose.getHeading())
                 .build();
 
         gotoGPP = follower.pathBuilder()
                 .addPath(new BezierLine(scorePose, goGPP))
                 .setLinearHeadingInterpolation(scorePose.getHeading(), goGPP.getHeading())
+                .setVelocityConstraint(0.1)
                 .build();
 
         grabGPP = follower.pathBuilder()
                 .addPath(new BezierLine(goGPP, gGPP))
                 .setLinearHeadingInterpolation(goGPP.getHeading(), gGPP.getHeading())
+                .setVelocityConstraint(0.05)
                 .build();
 
         scoreGPP = follower.pathBuilder()
@@ -158,18 +176,14 @@ public class pedronextauto extends NextFTCOpMode {
 
             case scorepreload:
                 if (!pathStarted) {
-                    follower.followPath(scorePreload);
-                    outtake.INSTANCE.Outf().schedule();
+                    outtake.INSTANCE.Outc().schedule();
                     actionTimer.resetTimer();
-                    pathStarted = true;
-                } else if (!follower.isBusy()) {
-                    pathStarted = false;
-                    pathState = Pathstate.wait;
                 }
+                runPath(scorePreload, Pathstate.wait);
                 break;
 
             case wait:
-                if (actionTimer.getElapsedTimeSeconds() >= 2) {
+                if (actionTimer.getElapsedTimeSeconds() >= 0.5) {
                     stopper.INSTANCE.go.schedule();
                     actionTimer.resetTimer();
                     pathState = Pathstate.closeGate;
@@ -177,47 +191,32 @@ public class pedronextauto extends NextFTCOpMode {
                 break;
 
             case closeGate:
-                if (actionTimer.getElapsedTimeSeconds() >= 3) {
+                if (actionTimer.getElapsedTimeSeconds() >= 2) {
                     stopper.INSTANCE.stop.schedule();
                     outtake.INSTANCE.Stop().schedule();
+                    pathStarted = false;
                     pathState = Pathstate.gotoPPG;
                 }
                 break;
 
             case gotoPPG:
-                if (!pathStarted) {
-                    follower.followPath(gotoPPG);
-                    pathStarted = true;
-                } else if (!follower.isBusy()) {
-                    pathStarted = false;
-                    pathState = Pathstate.grabPPG;
-                }
+                runPath(gotoPPG, Pathstate.grabPPG);
                 break;
 
             case grabPPG:
-                if (!pathStarted) {
-                    follower.followPath(grabPPG);
-                    pathStarted = true;
-                } else if (!follower.isBusy()) {
-                    pathStarted = false;
-                    pathState = Pathstate.scorePPG;
-                }
+                runPath(grabPPG, Pathstate.scorePPG);
                 break;
 
             case scorePPG:
                 if (!pathStarted) {
-                    follower.followPath(scorePPG);
-                    outtake.INSTANCE.Outf().schedule();
+                    outtake.INSTANCE.Outc().schedule();
                     actionTimer.resetTimer();
-                    pathStarted = true;
-                } else if (!follower.isBusy()) {
-                    pathStarted = false;
-                    pathState = Pathstate.wait1;
                 }
+                runPath(scorePPG, Pathstate.wait1);
                 break;
 
             case wait1:
-                if (actionTimer.getElapsedTimeSeconds() >= 2) {
+                if (actionTimer.getElapsedTimeSeconds() >= 0.5) {
                     stopper.INSTANCE.go.schedule();
                     actionTimer.resetTimer();
                     pathState = Pathstate.closeGate1;
@@ -225,7 +224,7 @@ public class pedronextauto extends NextFTCOpMode {
                 break;
 
             case closeGate1:
-                if (actionTimer.getElapsedTimeSeconds() >= 3) {
+                if (actionTimer.getElapsedTimeSeconds() >= 2) {
                     stopper.INSTANCE.stop.schedule();
                     outtake.INSTANCE.Stop().schedule();
                     pathStarted = false;
@@ -234,39 +233,23 @@ public class pedronextauto extends NextFTCOpMode {
                 break;
 
             case gotoPGP:
-                if (!pathStarted) {
-                    follower.followPath(gotoPGP);
-                    pathStarted = true;
-                } else if (!follower.isBusy()) {
-                    pathStarted = false;
-                    pathState = Pathstate.grabPGP;
-                }
+                runPath(gotoPGP, Pathstate.grabPGP);
                 break;
 
             case grabPGP:
-                if (!pathStarted) {
-                    follower.followPath(grabPGP);
-                    pathStarted = true;
-                } else if (!follower.isBusy()) {
-                    pathStarted = false;
-                    pathState = Pathstate.scorePGP;
-                }
+                runPath(grabPGP, Pathstate.scorePGP);
                 break;
 
             case scorePGP:
                 if (!pathStarted) {
-                    follower.followPath(scorePGP);
-                    outtake.INSTANCE.Outf().schedule();
+                    outtake.INSTANCE.Outc().schedule();
                     actionTimer.resetTimer();
-                    pathStarted = true;
-                } else if (!follower.isBusy()) {
-                    pathStarted = false;
-                    pathState = Pathstate.wait2;
                 }
+                runPath(scorePGP, Pathstate.wait2);
                 break;
 
             case wait2:
-                if (actionTimer.getElapsedTimeSeconds() >= 2) {
+                if (actionTimer.getElapsedTimeSeconds() >= 0.5) {
                     stopper.INSTANCE.go.schedule();
                     actionTimer.resetTimer();
                     pathState = Pathstate.closeGate2;
@@ -274,47 +257,32 @@ public class pedronextauto extends NextFTCOpMode {
                 break;
 
             case closeGate2:
-                if (actionTimer.getElapsedTimeSeconds() >= 3) {
+                if (actionTimer.getElapsedTimeSeconds() >= 2) {
                     stopper.INSTANCE.stop.schedule();
                     outtake.INSTANCE.Stop().schedule();
+                    pathStarted = false;
                     pathState = Pathstate.gotoGPP;
                 }
                 break;
 
             case gotoGPP:
-                if (!pathStarted) {
-                    follower.followPath(gotoGPP);
-                    pathStarted = true;
-                } else if (!follower.isBusy()) {
-                    pathStarted = false;
-                    pathState = Pathstate.grabGPP;
-                }
+                runPath(gotoGPP, Pathstate.grabGPP);
                 break;
 
             case grabGPP:
-                if (!pathStarted) {
-                    follower.followPath(grabGPP);
-                    pathStarted = true;
-                } else if (!follower.isBusy()) {
-                    pathStarted = false;
-                    pathState = Pathstate.scoreGPP;
-                }
+                runPath(grabGPP, Pathstate.scoreGPP);
                 break;
 
             case scoreGPP:
                 if (!pathStarted) {
-                    follower.followPath(scoreGPP);
-                    outtake.INSTANCE.Outf().schedule();
+                    outtake.INSTANCE.Outc().schedule();
                     actionTimer.resetTimer();
-                    pathStarted = true;
-                } else if (!follower.isBusy()) {
-                    pathStarted = false;
-                    pathState = Pathstate.wait3;
                 }
+                runPath(scoreGPP, Pathstate.wait3);
                 break;
 
             case wait3:
-                if (actionTimer.getElapsedTimeSeconds() >= 2) {
+                if (actionTimer.getElapsedTimeSeconds() >= 0.75) {
                     stopper.INSTANCE.go.schedule();
                     actionTimer.resetTimer();
                     pathState = Pathstate.closeGate3;
@@ -322,21 +290,16 @@ public class pedronextauto extends NextFTCOpMode {
                 break;
 
             case closeGate3:
-                if (actionTimer.getElapsedTimeSeconds() >= 3) {
+                if (actionTimer.getElapsedTimeSeconds() >= 2) {
                     stopper.INSTANCE.stop.schedule();
                     outtake.INSTANCE.Stop().schedule();
+                    pathStarted = false;
                     pathState = Pathstate.leaveBase;
                 }
                 break;
 
             case leaveBase:
-                if (!pathStarted) {
-                    follower.followPath(leaveBase);
-                    pathStarted = true;
-                } else if (!follower.isBusy()) {
-                    pathStarted = false;
-                    pathState = Pathstate.stop;
-                }
+                runPath(leaveBase, Pathstate.stop);
                 break;
 
             case stop:
@@ -345,17 +308,25 @@ public class pedronextauto extends NextFTCOpMode {
     }
 
 
+
     @Override
     public void onUpdate() {
+        super.onUpdate();
         follower.update();
         autonomousPathUpdate();
 
         telemetry.addData("path state", pathState);
+        telemetry.addData("isBusy", follower.isBusy());
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
         telemetry.addData("heading", follower.getPose().getHeading());
         telemetry.update();
     }
 
+    @Override
+    public void onStop(){
+        intake.INSTANCE.Stop().schedule();
+        outtake.INSTANCE.Stop().schedule();
+    }
 
 }

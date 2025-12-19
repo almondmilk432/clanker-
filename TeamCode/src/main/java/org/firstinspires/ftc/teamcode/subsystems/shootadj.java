@@ -11,9 +11,19 @@ public class shootadj implements Subsystem {
     private shootadj() {
     }
 
-    private ServoEx servo = new ServoEx("shootadj");
+    private ServoEx servoL = new ServoEx("adjL");
+    private ServoEx servoR = new ServoEx("adjR");
 
-    public Command up = new SetPosition(servo, .15).requires(this);
-    public Command mid = new SetPosition(servo, .25).requires(this);
-    public Command low = new SetPosition(servo, 0.4).requires(this);
+    public Command up() {
+        new SetPosition(servoR, -.15).requires(this);
+        return new SetPosition(servoL, .15).requires(this);
+    }
+    public Command mid() {
+        new SetPosition(servoR, .17).requires(this);
+        return new SetPosition(servoL, -.17).requires(this);
+    }
+    public Command low() {
+        new SetPosition(servoR, 0.4).requires(this);
+        return new SetPosition(servoL, -.04).requires(this);
+    }
 }

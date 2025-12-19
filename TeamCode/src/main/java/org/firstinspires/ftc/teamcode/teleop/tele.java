@@ -74,7 +74,7 @@ public class tele extends NextFTCOpMode {
         outtake.INSTANCE.Stop().schedule();
         brakeL.INSTANCE.up.schedule();
         brakeR.INSTANCE.up.schedule();
-        shootadj.INSTANCE.mid.schedule();
+        shootadj.INSTANCE.mid().schedule();
         stopper.INSTANCE.stop.schedule();
 
 
@@ -95,11 +95,11 @@ public class tele extends NextFTCOpMode {
                         .whenBecomesFalse(stopper.INSTANCE.stop);
 
         button(()-> gamepad2.dpad_up)
-                .whenBecomesTrue(shootadj.INSTANCE.up);
+                .whenBecomesTrue(shootadj.INSTANCE.up());
         button(()-> gamepad2.dpad_left)
-                .whenBecomesTrue(shootadj.INSTANCE.mid);
+                .whenBecomesTrue(shootadj.INSTANCE.mid());
         button(()-> gamepad2.dpad_down)
-                .whenBecomesTrue(shootadj.INSTANCE.low);
+                .whenBecomesTrue(shootadj.INSTANCE.low());
 
 
         button(() -> gamepad2.x)
@@ -107,7 +107,7 @@ public class tele extends NextFTCOpMode {
                 .whenBecomesFalse(intake.INSTANCE.In());
 
         button(()-> gamepad2.dpad_right)
-                .whenBecomesTrue(outtake.INSTANCE.Outf())
+                .whenBecomesTrue(outtake.INSTANCE.Outs())
                         .whenBecomesFalse(outtake.INSTANCE.Stop());
 
         button(()-> gamepad2.left_bumper)

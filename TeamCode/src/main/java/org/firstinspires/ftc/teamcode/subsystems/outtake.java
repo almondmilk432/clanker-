@@ -38,6 +38,9 @@ public class outtake implements Subsystem {
         return new RunToVelocity(controlSystem, 1300).requires(this);
     }
 
+    public Command Outs(){
+        return new RunToVelocity(controlSystem, 1000).requires (this);
+    }
     public Command Stop (){
         return new RunToVelocity(controlSystem, 0).requires(this);
     }
