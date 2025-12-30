@@ -87,7 +87,7 @@ public class redFarAuto extends NextFTCOpMode {
         brakeL.INSTANCE.up.schedule();
         brakeR.INSTANCE.up.schedule();
         stopper.INSTANCE.stop.schedule();
-        shootadj.INSTANCE.up().schedule();
+        shootadj.INSTANCE.upL().schedule();
 
         pathTimer = new Timer();
         actionTimer = new Timer();

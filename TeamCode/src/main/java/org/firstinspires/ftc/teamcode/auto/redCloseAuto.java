@@ -18,12 +18,10 @@ import org.firstinspires.ftc.teamcode.subsystems.outtake;
 import org.firstinspires.ftc.teamcode.subsystems.shootadj;
 import org.firstinspires.ftc.teamcode.subsystems.stopper;
 
-
 import dev.nextftc.ftc.components.BulkReadComponent;
 
 @Autonomous(name = "redCloseAuto", group = "robot")
 public class redCloseAuto extends NextFTCOpMode {
-
 
     public redCloseAuto () {
         addComponents(
@@ -34,33 +32,21 @@ public class redCloseAuto extends NextFTCOpMode {
         );
     }
 
-    private void runPath(PathChain path, Pathstate nextState) {
-        if (!pathStarted) {
-            follower.followPath(path);
-            pathStarted = true;
-        } else if (!follower.isBusy()) {
-            pathStarted = false;
-            pathState = nextState;
-        }
-    }
-
     private Follower follower;
     private Timer pathTimer, actionTimer, opmodeTimer;
     private boolean pathStarted = false;
 
-
-
-    private final Pose startPose = new Pose(122, 122, Math.toRadians(36));
-    private final Pose scorePose = new Pose(95, 95, Math.toRadians(40));
-    private final Pose goPPG = new Pose(100, 83, Math.toRadians(0));
-    private final Pose PPGc = new Pose(90, 95);
-    private final Pose gPPG = new Pose(125, 83, Math.toRadians(0));
-    private final Pose goPGP = new Pose(95, 60, Math.toRadians(0));
-    private final Pose gPGP = new Pose(130, 60, Math.toRadians(0));
-    private final Pose returnPGP = new Pose(100, 55);
-    private final Pose goGPP = new Pose(36, 35, Math.toRadians(180));
-    private final Pose gGPP = new Pose(131, 35, Math.toRadians(180));
-    private final Pose leave = new Pose(90, 125, Math.toRadians(180));
+    private final Pose startPose   = new Pose(122, 122, Math.toRadians(36));
+    private final Pose scorePose   = new Pose(95, 95, Math.toRadians(40));
+    private final Pose goPPG       = new Pose(95, 88, Math.toRadians(0));
+    private final Pose PPGc        = new Pose(80, 100);
+    private final Pose gPPG        = new Pose(126, 88, Math.toRadians(0));
+    private final Pose goPGP       = new Pose(90, 60, Math.toRadians(0));
+    private final Pose gPGP        = new Pose(130, 60, Math.toRadians(0));
+    private final Pose returnPGP   = new Pose(95, 60);
+    private final Pose goGPP       = new Pose(90, 39, Math.toRadians(0));
+    private final Pose gGPP        = new Pose(127, 39, Math.toRadians(0));
+    private final Pose leave       = new Pose(125, 67, Math.toRadians(180));
 
     private PathChain scorePreload, gotoPPG, grabPPG, scorePPG;
     private PathChain gotoPGP, grabPGP, scorePGP;
@@ -78,12 +64,10 @@ public class redCloseAuto extends NextFTCOpMode {
     @Override
     public void onInit() {
 
-
-
         brakeL.INSTANCE.up.schedule();
         brakeR.INSTANCE.up.schedule();
         stopper.INSTANCE.stop.schedule();
-        shootadj.INSTANCE.low().schedule();
+        shootadj.INSTANCE.lowL().schedule();
 
         pathTimer = new Timer();
         actionTimer = new Timer();
@@ -102,9 +86,7 @@ public class redCloseAuto extends NextFTCOpMode {
         intake.INSTANCE.In().schedule();
     }
 
-
     public void buildPaths() {
-
 
         scorePreload = follower.pathBuilder()
                 .addPath(new BezierLine(startPose, scorePose))
@@ -114,13 +96,11 @@ public class redCloseAuto extends NextFTCOpMode {
         gotoPPG = follower.pathBuilder()
                 .addPath(new BezierCurve(scorePose, PPGc, goPPG))
                 .setLinearHeadingInterpolation(scorePose.getHeading(), goPPG.getHeading())
-                .setVelocityConstraint(0.005)
                 .build();
 
         grabPPG = follower.pathBuilder()
                 .addPath(new BezierLine(goPPG, gPPG))
                 .setLinearHeadingInterpolation(goPPG.getHeading(), gPPG.getHeading())
-                .setVelocityConstraint(0.005)
                 .build();
 
         scorePPG = follower.pathBuilder()
@@ -131,13 +111,11 @@ public class redCloseAuto extends NextFTCOpMode {
         gotoPGP = follower.pathBuilder()
                 .addPath(new BezierLine(scorePose, goPGP))
                 .setLinearHeadingInterpolation(scorePose.getHeading(), goPGP.getHeading())
-                .setVelocityConstraint(0.1)
                 .build();
 
         grabPGP = follower.pathBuilder()
                 .addPath(new BezierLine(goPGP, gPGP))
                 .setLinearHeadingInterpolation(goPGP.getHeading(), gPGP.getHeading())
-                .setVelocityConstraint(0.05)
                 .build();
 
         scorePGP = follower.pathBuilder()
@@ -148,13 +126,11 @@ public class redCloseAuto extends NextFTCOpMode {
         gotoGPP = follower.pathBuilder()
                 .addPath(new BezierLine(scorePose, goGPP))
                 .setLinearHeadingInterpolation(scorePose.getHeading(), goGPP.getHeading())
-                .setVelocityConstraint(0.1)
                 .build();
 
         grabGPP = follower.pathBuilder()
                 .addPath(new BezierLine(goGPP, gGPP))
                 .setLinearHeadingInterpolation(goGPP.getHeading(), gGPP.getHeading())
-                .setVelocityConstraint(0.05)
                 .build();
 
         scoreGPP = follower.pathBuilder()
@@ -176,10 +152,15 @@ public class redCloseAuto extends NextFTCOpMode {
 
             case scorepreload:
                 if (!pathStarted) {
-                    outtake.INSTANCE.Outc().schedule();
+                    outtake.INSTANCE.Outs().schedule();
                     actionTimer.resetTimer();
+
+                    follower.followPath(scorePreload);
+                    pathStarted = true;
+                } else if (!follower.isBusy()) {
+                    pathStarted = false;
+                    pathState = Pathstate.wait;
                 }
-                runPath(scorePreload, Pathstate.wait);
                 break;
 
             case wait:
@@ -200,19 +181,36 @@ public class redCloseAuto extends NextFTCOpMode {
                 break;
 
             case gotoPPG:
-                runPath(gotoPPG, Pathstate.grabPPG);
+                if (!pathStarted) {
+                    follower.followPath(gotoPPG);
+                    pathStarted = true;
+                } else if (!follower.isBusy()) {
+                    pathStarted = false;
+                    pathState = Pathstate.grabPPG;
+                }
                 break;
 
             case grabPPG:
-                runPath(grabPPG, Pathstate.scorePPG);
+                if (!pathStarted) {
+                    follower.followPath(grabPPG, 0.6, true);
+                    pathStarted = true;
+                } else if (!follower.isBusy()) {
+                    pathStarted = false;
+                    pathState = Pathstate.scorePPG;
+                }
                 break;
 
             case scorePPG:
                 if (!pathStarted) {
-                    outtake.INSTANCE.Outc().schedule();
+                    outtake.INSTANCE.Outs().schedule();
                     actionTimer.resetTimer();
+
+                    follower.followPath(scorePPG);
+                    pathStarted = true;
+                } else if (!follower.isBusy()) {
+                    pathStarted = false;
+                    pathState = Pathstate.wait1;
                 }
-                runPath(scorePPG, Pathstate.wait1);
                 break;
 
             case wait1:
@@ -233,19 +231,36 @@ public class redCloseAuto extends NextFTCOpMode {
                 break;
 
             case gotoPGP:
-                runPath(gotoPGP, Pathstate.grabPGP);
+                if (!pathStarted) {
+                    follower.followPath(gotoPGP);
+                    pathStarted = true;
+                } else if (!follower.isBusy()) {
+                    pathStarted = false;
+                    pathState = Pathstate.grabPGP;
+                }
                 break;
 
             case grabPGP:
-                runPath(grabPGP, Pathstate.scorePGP);
+                if (!pathStarted) {
+                    follower.followPath(grabPGP, 0.6, true);
+                    pathStarted = true;
+                } else if (!follower.isBusy()) {
+                    pathStarted = false;
+                    pathState = Pathstate.scorePGP;
+                }
                 break;
 
             case scorePGP:
                 if (!pathStarted) {
-                    outtake.INSTANCE.Outc().schedule();
+                    outtake.INSTANCE.Outs().schedule();
                     actionTimer.resetTimer();
+
+                    follower.followPath(scorePGP);
+                    pathStarted = true;
+                } else if (!follower.isBusy()) {
+                    pathStarted = false;
+                    pathState = Pathstate.wait2;
                 }
-                runPath(scorePGP, Pathstate.wait2);
                 break;
 
             case wait2:
@@ -266,19 +281,36 @@ public class redCloseAuto extends NextFTCOpMode {
                 break;
 
             case gotoGPP:
-                runPath(gotoGPP, Pathstate.grabGPP);
+                if (!pathStarted) {
+                    follower.followPath(gotoGPP);
+                    pathStarted = true;
+                } else if (!follower.isBusy()) {
+                    pathStarted = false;
+                    pathState = Pathstate.grabGPP;
+                }
                 break;
 
             case grabGPP:
-                runPath(grabGPP, Pathstate.scoreGPP);
+                if (!pathStarted) {
+                    follower.followPath(grabGPP, 0.5, true);
+                    pathStarted = true;
+                } else if (!follower.isBusy()) {
+                    pathStarted = false;
+                    pathState = Pathstate.scoreGPP;
+                }
                 break;
 
             case scoreGPP:
                 if (!pathStarted) {
-                    outtake.INSTANCE.Outc().schedule();
+                    outtake.INSTANCE.Outs().schedule();
                     actionTimer.resetTimer();
+
+                    follower.followPath(scoreGPP);
+                    pathStarted = true;
+                } else if (!follower.isBusy()) {
+                    pathStarted = false;
+                    pathState = Pathstate.wait3;
                 }
-                runPath(scoreGPP, Pathstate.wait3);
                 break;
 
             case wait3:
@@ -299,15 +331,19 @@ public class redCloseAuto extends NextFTCOpMode {
                 break;
 
             case leaveBase:
-                runPath(leaveBase, Pathstate.stop);
+                if (!pathStarted) {
+                    follower.followPath(leaveBase);
+                    pathStarted = true;
+                } else if (!follower.isBusy()) {
+                    pathStarted = false;
+                    pathState = Pathstate.stop;
+                }
                 break;
 
             case stop:
                 break;
         }
     }
-
-
 
     @Override
     public void onUpdate() {
@@ -328,5 +364,4 @@ public class redCloseAuto extends NextFTCOpMode {
         intake.INSTANCE.Stop().schedule();
         outtake.INSTANCE.Stop().schedule();
     }
-
 }

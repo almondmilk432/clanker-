@@ -18,14 +18,12 @@ import org.firstinspires.ftc.teamcode.subsystems.outtake;
 import org.firstinspires.ftc.teamcode.subsystems.shootadj;
 import org.firstinspires.ftc.teamcode.subsystems.stopper;
 
-
 import dev.nextftc.ftc.components.BulkReadComponent;
 
-@Autonomous(name = "blueFarAuto", group = "robot")
-public class blueFarAuto extends NextFTCOpMode {
+@Autonomous(name = "blueCloseAuto", group = "robot")
+public class blueCloseAuto extends NextFTCOpMode {
 
-
-    public blueFarAuto () {
+    public blueCloseAuto () {
         addComponents(
                 new SubsystemComponent(outtake.INSTANCE, intake.INSTANCE, brakeL.INSTANCE, brakeR.INSTANCE,
                         shootadj.INSTANCE, stopper.INSTANCE),
@@ -34,37 +32,21 @@ public class blueFarAuto extends NextFTCOpMode {
         );
     }
 
-    private void runPath(PathChain path, Pathstate nextState) {
-        if (!pathStarted) {
-            follower.followPath(path);
-            pathStarted = true;
-        } else if (!follower.isBusy()) {
-            pathStarted = false;
-            pathState = nextState;
-        }
-    }
-
     private Follower follower;
     private Timer pathTimer, actionTimer, opmodeTimer;
     private boolean pathStarted = false;
 
-
-
-    private final Pose startPose = new Pose(57, 9, Math.toRadians(90));
-    private final Pose scorePose = new Pose(60, 19, Math.toRadians(111));
-    private final Pose scorePose2 = new Pose(60, 19, Math.toRadians(118));
-    private final Pose scorePose3 = new Pose(60, 19, Math.toRadians(110));
-    private final Pose goPPG = new Pose(60, 38, Math.toRadians(180));
-    private final Pose PPGc = new Pose(62, 36);
-    private final Pose gPPG = new Pose(20, 38, Math.toRadians(180));
-    private final Pose goPGP = new Pose(60, 60, Math.toRadians(180));
-    private final Pose PGPc = new Pose(67, 59);
-    private final Pose gPGP = new Pose(20, 60, Math.toRadians(180));
-    private final Pose goGPP = new Pose(55, 87, Math.toRadians(180));
-    private final Pose GPPc = new Pose(67, 83);
-    private final Pose gGPP = new Pose(25, 87, Math.toRadians(180));
-    private final Pose returnGPP = new Pose(53, 63);
-    private final Pose leave = new Pose(38, 32, Math.toRadians(0));
+    private final Pose startPose   = new Pose(122, 122, Math.toRadians(36)).mirror();
+    private final Pose scorePose   = new Pose(95, 95, Math.toRadians(40)).mirror();
+    private final Pose goPPG       = new Pose(95, 88, Math.toRadians(0)).mirror();
+    private final Pose PPGc        = new Pose(80, 100).mirror();
+    private final Pose gPPG        = new Pose(122, 88, Math.toRadians(0)).mirror();
+    private final Pose goPGP       = new Pose(90, 60, Math.toRadians(0)).mirror();
+    private final Pose gPGP        = new Pose(130, 60, Math.toRadians(0)).mirror();
+    private final Pose returnPGP   = new Pose(95, 60).mirror();
+    private final Pose goGPP       = new Pose(90, 39, Math.toRadians(0)).mirror();
+    private final Pose gGPP        = new Pose(124, 39, Math.toRadians(0)).mirror();
+    private final Pose leave       = new Pose(125, 67, Math.toRadians(180)).mirror();
 
     private PathChain scorePreload, gotoPPG, grabPPG, scorePPG;
     private PathChain gotoPGP, grabPGP, scorePGP;
@@ -82,12 +64,10 @@ public class blueFarAuto extends NextFTCOpMode {
     @Override
     public void onInit() {
 
-
-
         brakeL.INSTANCE.up.schedule();
         brakeR.INSTANCE.up.schedule();
         stopper.INSTANCE.stop.schedule();
-        shootadj.INSTANCE.upL().schedule();
+        shootadj.INSTANCE.lowL().schedule();
 
         pathTimer = new Timer();
         actionTimer = new Timer();
@@ -106,9 +86,7 @@ public class blueFarAuto extends NextFTCOpMode {
         intake.INSTANCE.In().schedule();
     }
 
-
     public void buildPaths() {
-
 
         scorePreload = follower.pathBuilder()
                 .addPath(new BezierLine(startPose, scorePose))
@@ -118,57 +96,51 @@ public class blueFarAuto extends NextFTCOpMode {
         gotoPPG = follower.pathBuilder()
                 .addPath(new BezierCurve(scorePose, PPGc, goPPG))
                 .setLinearHeadingInterpolation(scorePose.getHeading(), goPPG.getHeading())
-                .setVelocityConstraint(0.005)
                 .build();
 
         grabPPG = follower.pathBuilder()
                 .addPath(new BezierLine(goPPG, gPPG))
                 .setLinearHeadingInterpolation(goPPG.getHeading(), gPPG.getHeading())
-                .setVelocityConstraint(0.005)
                 .build();
 
         scorePPG = follower.pathBuilder()
-                .addPath(new BezierLine(gPPG, scorePose2))
-                .setLinearHeadingInterpolation(gPPG.getHeading(), scorePose2.getHeading())
+                .addPath(new BezierLine(gPPG, scorePose))
+                .setLinearHeadingInterpolation(gPPG.getHeading(), scorePose.getHeading())
                 .build();
 
         gotoPGP = follower.pathBuilder()
-                .addPath(new BezierCurve(scorePose2, PGPc, goPGP))
-                .setLinearHeadingInterpolation(scorePose2.getHeading(), goPGP.getHeading())
-                .setVelocityConstraint(0.1)
+                .addPath(new BezierLine(scorePose, goPGP))
+                .setLinearHeadingInterpolation(scorePose.getHeading(), goPGP.getHeading())
                 .build();
 
         grabPGP = follower.pathBuilder()
                 .addPath(new BezierLine(goPGP, gPGP))
                 .setLinearHeadingInterpolation(goPGP.getHeading(), gPGP.getHeading())
-                .setVelocityConstraint(0.05)
                 .build();
 
         scorePGP = follower.pathBuilder()
-                .addPath(new BezierLine(gPGP, scorePose2))
-                .setLinearHeadingInterpolation(gPGP.getHeading(), scorePose2.getHeading())
+                .addPath(new BezierCurve(gPGP, returnPGP, scorePose))
+                .setLinearHeadingInterpolation(gPGP.getHeading(), scorePose.getHeading())
                 .build();
 
         gotoGPP = follower.pathBuilder()
-                .addPath(new BezierCurve(scorePose2, GPPc, goGPP))
-                .setLinearHeadingInterpolation(scorePose2.getHeading(), goGPP.getHeading())
-                .setVelocityConstraint(0.1)
+                .addPath(new BezierLine(scorePose, goGPP))
+                .setLinearHeadingInterpolation(scorePose.getHeading(), goGPP.getHeading())
                 .build();
 
         grabGPP = follower.pathBuilder()
                 .addPath(new BezierLine(goGPP, gGPP))
                 .setLinearHeadingInterpolation(goGPP.getHeading(), gGPP.getHeading())
-                .setVelocityConstraint(0.05)
                 .build();
 
         scoreGPP = follower.pathBuilder()
-                .addPath(new BezierCurve(gGPP, returnGPP, scorePose2))
-                .setLinearHeadingInterpolation(gGPP.getHeading(), scorePose2.getHeading())
+                .addPath(new BezierLine(gGPP, scorePose))
+                .setLinearHeadingInterpolation(gGPP.getHeading(), scorePose.getHeading())
                 .build();
 
         leaveBase = follower.pathBuilder()
-                .addPath(new BezierLine(scorePose2, leave))
-                .setLinearHeadingInterpolation(scorePose2.getHeading(), leave.getHeading())
+                .addPath(new BezierLine(scorePose, leave))
+                .setLinearHeadingInterpolation(scorePose.getHeading(), leave.getHeading())
                 .build();
     }
 
@@ -180,10 +152,15 @@ public class blueFarAuto extends NextFTCOpMode {
 
             case scorepreload:
                 if (!pathStarted) {
-                    outtake.INSTANCE.Outc().schedule();
+                    outtake.INSTANCE.Outs().schedule();
                     actionTimer.resetTimer();
+
+                    follower.followPath(scorePreload);
+                    pathStarted = true;
+                } else if (!follower.isBusy()) {
+                    pathStarted = false;
+                    pathState = Pathstate.wait;
                 }
-                runPath(scorePreload, Pathstate.wait);
                 break;
 
             case wait:
@@ -204,19 +181,36 @@ public class blueFarAuto extends NextFTCOpMode {
                 break;
 
             case gotoPPG:
-                runPath(gotoPPG, Pathstate.grabPPG);
+                if (!pathStarted) {
+                    follower.followPath(gotoPPG);
+                    pathStarted = true;
+                } else if (!follower.isBusy()) {
+                    pathStarted = false;
+                    pathState = Pathstate.grabPPG;
+                }
                 break;
 
             case grabPPG:
-                runPath(grabPPG, Pathstate.scorePPG);
+                if (!pathStarted) {
+                    follower.followPath(grabPPG, 0.6, true);
+                    pathStarted = true;
+                } else if (!follower.isBusy()) {
+                    pathStarted = false;
+                    pathState = Pathstate.scorePPG;
+                }
                 break;
 
             case scorePPG:
                 if (!pathStarted) {
-                    outtake.INSTANCE.Outc().schedule();
+                    outtake.INSTANCE.Outs().schedule();
                     actionTimer.resetTimer();
+
+                    follower.followPath(scorePPG);
+                    pathStarted = true;
+                } else if (!follower.isBusy()) {
+                    pathStarted = false;
+                    pathState = Pathstate.wait1;
                 }
-                runPath(scorePPG, Pathstate.wait1);
                 break;
 
             case wait1:
@@ -237,19 +231,36 @@ public class blueFarAuto extends NextFTCOpMode {
                 break;
 
             case gotoPGP:
-                runPath(gotoPGP, Pathstate.grabPGP);
+                if (!pathStarted) {
+                    follower.followPath(gotoPGP);
+                    pathStarted = true;
+                } else if (!follower.isBusy()) {
+                    pathStarted = false;
+                    pathState = Pathstate.grabPGP;
+                }
                 break;
 
             case grabPGP:
-                runPath(grabPGP, Pathstate.scorePGP);
+                if (!pathStarted) {
+                    follower.followPath(grabPGP, 0.6, true);
+                    pathStarted = true;
+                } else if (!follower.isBusy()) {
+                    pathStarted = false;
+                    pathState = Pathstate.scorePGP;
+                }
                 break;
 
             case scorePGP:
                 if (!pathStarted) {
-                    outtake.INSTANCE.Outc().schedule();
+                    outtake.INSTANCE.Outs().schedule();
                     actionTimer.resetTimer();
+
+                    follower.followPath(scorePGP);
+                    pathStarted = true;
+                } else if (!follower.isBusy()) {
+                    pathStarted = false;
+                    pathState = Pathstate.wait2;
                 }
-                runPath(scorePGP, Pathstate.wait2);
                 break;
 
             case wait2:
@@ -270,19 +281,36 @@ public class blueFarAuto extends NextFTCOpMode {
                 break;
 
             case gotoGPP:
-                runPath(gotoGPP, Pathstate.grabGPP);
+                if (!pathStarted) {
+                    follower.followPath(gotoGPP);
+                    pathStarted = true;
+                } else if (!follower.isBusy()) {
+                    pathStarted = false;
+                    pathState = Pathstate.grabGPP;
+                }
                 break;
 
             case grabGPP:
-                runPath(grabGPP, Pathstate.scoreGPP);
+                if (!pathStarted) {
+                    follower.followPath(grabGPP, 0.5, true);
+                    pathStarted = true;
+                } else if (!follower.isBusy()) {
+                    pathStarted = false;
+                    pathState = Pathstate.scoreGPP;
+                }
                 break;
 
             case scoreGPP:
                 if (!pathStarted) {
-                    outtake.INSTANCE.Outc().schedule();
+                    outtake.INSTANCE.Outs().schedule();
                     actionTimer.resetTimer();
+
+                    follower.followPath(scoreGPP);
+                    pathStarted = true;
+                } else if (!follower.isBusy()) {
+                    pathStarted = false;
+                    pathState = Pathstate.wait3;
                 }
-                runPath(scoreGPP, Pathstate.wait3);
                 break;
 
             case wait3:
@@ -303,15 +331,19 @@ public class blueFarAuto extends NextFTCOpMode {
                 break;
 
             case leaveBase:
-                runPath(leaveBase, Pathstate.stop);
+                if (!pathStarted) {
+                    follower.followPath(leaveBase);
+                    pathStarted = true;
+                } else if (!follower.isBusy()) {
+                    pathStarted = false;
+                    pathState = Pathstate.stop;
+                }
                 break;
 
             case stop:
                 break;
         }
     }
-
-
 
     @Override
     public void onUpdate() {
@@ -332,5 +364,4 @@ public class blueFarAuto extends NextFTCOpMode {
         intake.INSTANCE.Stop().schedule();
         outtake.INSTANCE.Stop().schedule();
     }
-
 }

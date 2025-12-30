@@ -14,16 +14,49 @@ public class shootadj implements Subsystem {
     private ServoEx servoL = new ServoEx("adjL");
     private ServoEx servoR = new ServoEx("adjR");
 
-    public Command up() {
-        new SetPosition(servoR, -.15).requires(this);
+    public Command upL() {
+        return new SetPosition(servoL, .05).requires(this);
+    }
+    public Command upR() {
+        return new SetPosition(servoR, .4).requires(this);
+    }
+
+
+
+    public Command midL() {
         return new SetPosition(servoL, .15).requires(this);
     }
-    public Command mid() {
-        new SetPosition(servoR, .17).requires(this);
-        return new SetPosition(servoL, -.17).requires(this);
+    public Command midR(){
+        return new SetPosition(servoR, .35).requires(this);
     }
-    public Command low() {
-        new SetPosition(servoR, 0.4).requires(this);
-        return new SetPosition(servoL, -.04).requires(this);
+
+
+
+    public Command lowL() {
+        return new SetPosition(servoL, .4).requires(this);
     }
+    public Command lowR() {
+        return new SetPosition(servoR, .1).requires(this);
+    }
+
+
+
+    public Command targetPosR(double pos) {
+        pos = Math.max(0.4, Math.min(0.1, pos));
+        return new SetPosition(servoR, pos).requires(this);
+    }
+    public Command targetPosL(double pos) {
+        pos = Math.max(0.4, Math.min(0.5, pos));
+        return new SetPosition(servoL, pos).requires(this);
+     }
+
+    public double getAngleL() {
+        return servoL.getPosition();
+    }
+    public double getAngleR() {
+        return servoR.getPosition();
+    }
+
+
+
 }

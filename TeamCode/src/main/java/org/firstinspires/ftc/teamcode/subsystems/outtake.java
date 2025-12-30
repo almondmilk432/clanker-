@@ -29,6 +29,11 @@ public class outtake implements Subsystem {
 
 
 
+    public Command targetVel(double rpm) {
+        return new RunToVelocity(controlSystem, rpm).requires(this);
+    }
+
+
 
     public Command Outf(){
         return new RunToVelocity(controlSystem, 1750).requires(this);

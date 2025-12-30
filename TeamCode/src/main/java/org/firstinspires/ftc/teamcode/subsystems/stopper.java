@@ -14,5 +14,5 @@ public class stopper implements Subsystem {
     private ServoEx servo = new ServoEx("stopper");
 
     public Command stop = new SetPosition(servo, 1).requires(this);
-    public Command go = new SetPosition(servo, .6).requires(this);
+    public Command go = new SetPosition(servo, 0.6).requires(this);
 }
