@@ -5,7 +5,6 @@ import static dev.nextftc.bindings.Bindings.button;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.ftc.localization.localizers.PinpointLocalizer;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.HeadingInterpolator;
@@ -31,10 +30,10 @@ import dev.nextftc.core.components.SubsystemComponent;
 import dev.nextftc.ftc.NextFTCOpMode;
 import dev.nextftc.ftc.components.BulkReadComponent;
 
-@TeleOp(name="tele", group = "Robot")
-public class tele extends NextFTCOpMode {
+@TeleOp(name="redTele", group = "Robot")
+public class redTele extends NextFTCOpMode {
 
-    public tele() {
+    public redTele() {
 
     }
     //public static final Pose ShootP = new Pose(85, 95, Math.toRadians(50)); //put your desired position and heading here
@@ -44,6 +43,7 @@ public class tele extends NextFTCOpMode {
     private boolean automatedDrive;
     private Supplier<PathChain> Shoot;
     private TelemetryManager telemetryM;
+    private static final double LLCorrection = 0.02;
 
 
 
@@ -81,7 +81,7 @@ public class tele extends NextFTCOpMode {
 
 
         intake.INSTANCE.In().schedule();
-        outtake.INSTANCE.Stop().schedule();
+        outtake.INSTANCE.idle().schedule();
         brakeL.INSTANCE.up.schedule();
         brakeR.INSTANCE.up.schedule();
         shootadj.INSTANCE.midL().schedule();
@@ -94,16 +94,22 @@ public class tele extends NextFTCOpMode {
 
         button(() -> gamepad2.y)
                 .whenBecomesTrue(intake.INSTANCE.Out())
+                .whenBecomesTrue(outtake.INSTANCE.reverse())
+                .whenBecomesTrue(stopper.INSTANCE.go)
                 .whenBecomesFalse(intake.INSTANCE.In());
 
         button(() -> gamepad1.b)
                 .whenBecomesTrue(brakeL.INSTANCE.down)
                         .whenBecomesTrue(brakeR.INSTANCE.down)
+                .whenBecomesTrue(() -> gamepad1.rumble(1000))
+                .whenBecomesFalse(() -> gamepad1.stopRumble())
                                 .whenBecomesFalse(brakeL.INSTANCE.up)
                                         .whenBecomesFalse(brakeR.INSTANCE.up);
 
         button(()-> gamepad2.a)
                 .whenBecomesTrue(stopper.INSTANCE.go)
+                //.whenBecomesTrue(() -> gamepad2.rumble(250))
+               // .whenBecomesFalse(() -> gamepad2.stopRumble())
                         .whenBecomesFalse(stopper.INSTANCE.stop);
 
         button(()-> gamepad2.dpad_up)
@@ -123,11 +129,15 @@ public class tele extends NextFTCOpMode {
 
         button(()-> gamepad2.dpad_right)
                 .whenBecomesTrue(outtake.INSTANCE.Outs())
-                        .whenBecomesFalse(outtake.INSTANCE.Stop());
+                        .whenBecomesFalse(outtake.INSTANCE.idle());
+
+        button(() -> outtake.getVelocity() >= 900)
+                .whenBecomesTrue(() -> gamepad2.rumble(150))
+                .whenBecomesFalse(() -> gamepad2.stopRumble());
 
         button(()-> gamepad2.left_bumper)
                 .whenBecomesTrue(outtake.INSTANCE.Outc())
-                .whenBecomesFalse(outtake.INSTANCE.Stop());
+                .whenBecomesFalse(outtake.INSTANCE.idle());
 
         button(() -> gamepad2.right_bumper)
                 .whenBecomesTrue(() -> {
@@ -143,7 +153,7 @@ public class tele extends NextFTCOpMode {
                     }
                 })
                 .whenBecomesFalse(() -> {
-                    outtake.INSTANCE.Stop().schedule();
+                    outtake.INSTANCE.idle().schedule();
                     shootadj.INSTANCE.midL().schedule();
                     shootadj.INSTANCE.midR().schedule();
                 });
@@ -177,7 +187,18 @@ public class tele extends NextFTCOpMode {
         if (gamepad1.square)
             follower.setPose(follower.getPose().withHeading(0));
 
+        double rotInput = -gamepad1.right_stick_x;
 
+        if (gamepad2.touchpadWasPressed() &&
+                LL3a.INSTANCE != null &&
+                LL3a.INSTANCE.hasValidTarget()) {
+
+            double tx = LL3a.INSTANCE.getDistanceToTag(); // horizontal error in degrees
+            rotInput = -tx * LLCorrection;
+            if (Math.abs(tx) < 0.5) { //saftety to prevent oscolation. Remove if unneeded
+                rotInput = 0;
+            }
+        }
 
 
         if (!automatedDrive) {
@@ -187,20 +208,10 @@ public class tele extends NextFTCOpMode {
             follower.setTeleOpDrive(
                     -gamepad1.left_stick_y,
                     -gamepad1.left_stick_x,
-                    -gamepad1.right_stick_x,
+                    rotInput,
                     false // F= Feild Centric   T= Robot Centric
 
             );
-        }
-
-        //Automated PathFollowing
-        if (gamepad1.touchpadWasPressed()) {
-            follower.followPath(Shoot.get());
-            automatedDrive = true;
-        }
-        if (gamepad1.touchpadWasReleased()) {
-            follower.startTeleopDrive();
-            automatedDrive = false;
         }
 
     }

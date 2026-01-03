@@ -39,6 +39,14 @@ public class outtake implements Subsystem {
         return new RunToVelocity(controlSystem, 1750).requires(this);
     }
 
+    public Command reverse(){
+        return new RunToVelocity(controlSystem, -2500).requires(this);
+    }
+
+    public Command idle(){
+        return new RunToVelocity(controlSystem, 500).requires(this);
+    }
+
     public Command Outc(){
         return new RunToVelocity(controlSystem, 1300).requires(this);
     }
