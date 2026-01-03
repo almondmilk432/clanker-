@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.vision;
 public class interpolation_table {
 
     // calibration points (meters → RPM)
-    private static final double[] distances = {0.1, 1.0, 1.5, 2.0, 2.5};
+    private static final double[] distances = {0, 1.0, 1.5, 2.0, 2.5};
     private static final double[] rpms      = {1000, 2200, 2500, 2800, 3000};
     private static final double[] hoods     = {0.05, 0.05, 0.10, 0.17, 0.23};
 

@@ -35,23 +35,15 @@ import dev.nextftc.ftc.components.BulkReadComponent;
 public class tele extends NextFTCOpMode {
 
     public tele() {
-        addComponents(
-                new SubsystemComponent(outtake.INSTANCE, intake.INSTANCE, brakeL.INSTANCE, brakeR.INSTANCE,
-                        shootadj.INSTANCE, stopper.INSTANCE, LL3a.INSTANCE),
-                BulkReadComponent.INSTANCE,
-                BindingsComponent.INSTANCE
-        );
-    }
 
+    }
     //public static final Pose ShootP = new Pose(85, 95, Math.toRadians(50)); //put your desired position and heading here
 
     private Follower follower;
-    // public static Pose startingPose; //See MoveTestAuto to understand how to use this
+    // public static Pose startingPose;
     private boolean automatedDrive;
     private Supplier<PathChain> Shoot;
-    private LL3a limelight;
     private TelemetryManager telemetryM;
-    private boolean visionPipelineActive = false;
 
 
 
@@ -63,6 +55,14 @@ public class tele extends NextFTCOpMode {
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
         LL3a.init(hardwareMap, 1);
+
+        addComponents(
+                new SubsystemComponent(outtake.INSTANCE, intake.INSTANCE, brakeL.INSTANCE, brakeR.INSTANCE,
+                        shootadj.INSTANCE, stopper.INSTANCE, LL3a.INSTANCE),
+                BulkReadComponent.INSTANCE,
+                BindingsComponent.INSTANCE
+        );
+
 
         Shoot = () -> follower.pathBuilder() //Lazy Curve Generation
                 .addPath(new Path(new BezierLine(follower::getPose, new Pose(85, 95))))
@@ -76,6 +76,9 @@ public class tele extends NextFTCOpMode {
     public void onStartButtonPressed() {
 
         follower.startTeleopDrive();
+
+        LL3a.INSTANCE.onStart();
+
 
         intake.INSTANCE.In().schedule();
         outtake.INSTANCE.Stop().schedule();
@@ -126,7 +129,24 @@ public class tele extends NextFTCOpMode {
                 .whenBecomesTrue(outtake.INSTANCE.Outc())
                 .whenBecomesFalse(outtake.INSTANCE.Stop());
 
+        button(() -> gamepad2.right_bumper)
+                .whenBecomesTrue(() -> {
+                    if (LL3a.INSTANCE != null && LL3a.INSTANCE.hasValidTarget()) {
 
+                        double d = LL3a.INSTANCE.getDistanceToTag();
+                        double rpm = interpolation_table.rpmForDistance(d);
+                        double hood = interpolation_table.hoodForDistance(d);
+
+                        outtake.INSTANCE.targetVel(rpm).schedule();
+                        shootadj.INSTANCE.getAngleL();
+                        shootadj.INSTANCE.getAngleR();
+                    }
+                })
+                .whenBecomesFalse(() -> {
+                    outtake.INSTANCE.Stop().schedule();
+                    shootadj.INSTANCE.midL().schedule();
+                    shootadj.INSTANCE.midR().schedule();
+                });
 
 
 
@@ -143,10 +163,13 @@ public class tele extends NextFTCOpMode {
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
         telemetry.addData("heading", follower.getPose().getHeading());
-        telemetry.addData("LL has target", LL3a.INSTANCE.hasValidTarget());
-        telemetry.addData("LL has MT2", LL3a.INSTANCE.hasMT2());
-        telemetry.addData("LL distance", LL3a.INSTANCE.getDistanceToTag());
-        telemetry.addData("LL result null", LL3a.INSTANCE.latest == null);
+        if (LL3a.INSTANCE != null) {
+            telemetry.addData("LL has target", LL3a.INSTANCE.hasValidTarget());
+            telemetry.addData("LL distance", LL3a.INSTANCE.getDistanceToTag());
+        } else {
+            telemetry.addLine("LL3a INSTANCE NULL");
+        }
+
 
 
         telemetry.update();
@@ -154,20 +177,7 @@ public class tele extends NextFTCOpMode {
         if (gamepad1.square)
             follower.setPose(follower.getPose().withHeading(0));
 
-        if (gamepad2.right_bumper && limelight.hasValidTarget()) {
 
-            double distance = limelight.getDistanceToTag();
-
-
-
-            double rpm = interpolation_table.rpmForDistance(distance);
-            double hood = interpolation_table.hoodForDistance(distance);
-
-
-            outtake.INSTANCE.targetVel(rpm).schedule();
-            shootadj.INSTANCE.targetPosL(hood).schedule();
-            shootadj.INSTANCE.targetPosR(hood).schedule();
-        }
 
 
         if (!automatedDrive) {
