@@ -14,33 +14,26 @@ public class intake implements Subsystem {
     private intake() { }
 
     private MotorEx motor = new MotorEx("intake").reversed();
-    private CRServoEx servoR = new CRServoEx("intakeR");
-    private CRServoEx servoL = new CRServoEx("intakeL");
 
 
 
     private ControlSystem controlSystem = ControlSystem.builder()
+            .velPid(0.0025, 0, 0)
             .basicFF(11, 0,0)
             .build();
 
     public Command In (){
-        new SetPower(servoR, 1).requires(this);
-        new SetPower(servoL, -1).requires(this);
         return new RunToVelocity(controlSystem, 5000).requires(this);
 
     }
 
 
     public Command Out (){
-        new SetPower(servoR, -1).requires(this);
-        new SetPower(servoL, 1).requires(this);
         return new RunToVelocity(controlSystem, -5000).requires(this);
     }
 
 
     public Command Stop (){
-        new SetPower(servoR, 0).requires(this);
-        new SetPower(servoL, 0).requires(this);
         return new RunToVelocity(controlSystem, 0).requires(this);
     }
 

@@ -40,10 +40,10 @@ public class blueCloseAuto extends NextFTCOpMode {
     private final Pose scorePose   = new Pose(95, 95, Math.toRadians(40)).mirror();
     private final Pose goPPG       = new Pose(95, 88, Math.toRadians(0)).mirror();
     private final Pose PPGc        = new Pose(80, 100).mirror();
-    private final Pose gPPG        = new Pose(122, 88, Math.toRadians(0)).mirror();
+    private final Pose gPPG        = new Pose(120, 88, Math.toRadians(0)).mirror();
     private final Pose goPGP       = new Pose(90, 60, Math.toRadians(0)).mirror();
-    private final Pose gPGP        = new Pose(130, 60, Math.toRadians(0)).mirror();
-    private final Pose returnPGP   = new Pose(95, 60).mirror();
+    private final Pose gPGP        = new Pose(124, 57, Math.toRadians(0)).mirror();
+    private final Pose returnPGP   = new Pose(93, 57).mirror();
     private final Pose goGPP       = new Pose(90, 39, Math.toRadians(0)).mirror();
     private final Pose gGPP        = new Pose(124, 39, Math.toRadians(0)).mirror();
     private final Pose leave       = new Pose(125, 67, Math.toRadians(180)).mirror();
@@ -164,7 +164,7 @@ public class blueCloseAuto extends NextFTCOpMode {
                 break;
 
             case wait:
-                if (actionTimer.getElapsedTimeSeconds() >= 0.5) {
+                if (actionTimer.getElapsedTimeSeconds() >= 0.25) {
                     stopper.INSTANCE.go.schedule();
                     actionTimer.resetTimer();
                     pathState = Pathstate.closeGate;
@@ -172,7 +172,7 @@ public class blueCloseAuto extends NextFTCOpMode {
                 break;
 
             case closeGate:
-                if (actionTimer.getElapsedTimeSeconds() >= 2) {
+                if (actionTimer.getElapsedTimeSeconds() >= 1.2) {
                     stopper.INSTANCE.stop.schedule();
                     outtake.INSTANCE.Stop().schedule();
                     pathStarted = false;
@@ -192,7 +192,7 @@ public class blueCloseAuto extends NextFTCOpMode {
 
             case grabPPG:
                 if (!pathStarted) {
-                    follower.followPath(grabPPG, 0.6, true);
+                    follower.followPath(grabPPG, 1, true);
                     pathStarted = true;
                 } else if (!follower.isBusy()) {
                     pathStarted = false;
@@ -214,7 +214,7 @@ public class blueCloseAuto extends NextFTCOpMode {
                 break;
 
             case wait1:
-                if (actionTimer.getElapsedTimeSeconds() >= 0.5) {
+                if (actionTimer.getElapsedTimeSeconds() >= 0.25) {
                     stopper.INSTANCE.go.schedule();
                     actionTimer.resetTimer();
                     pathState = Pathstate.closeGate1;
@@ -222,7 +222,7 @@ public class blueCloseAuto extends NextFTCOpMode {
                 break;
 
             case closeGate1:
-                if (actionTimer.getElapsedTimeSeconds() >= 2) {
+                if (actionTimer.getElapsedTimeSeconds() >= 1.2) {
                     stopper.INSTANCE.stop.schedule();
                     outtake.INSTANCE.Stop().schedule();
                     pathStarted = false;
@@ -242,7 +242,7 @@ public class blueCloseAuto extends NextFTCOpMode {
 
             case grabPGP:
                 if (!pathStarted) {
-                    follower.followPath(grabPGP, 0.6, true);
+                    follower.followPath(grabPGP, 1, true);
                     pathStarted = true;
                 } else if (!follower.isBusy()) {
                     pathStarted = false;
@@ -264,7 +264,7 @@ public class blueCloseAuto extends NextFTCOpMode {
                 break;
 
             case wait2:
-                if (actionTimer.getElapsedTimeSeconds() >= 0.5) {
+                if (actionTimer.getElapsedTimeSeconds() >= 0.25) {
                     stopper.INSTANCE.go.schedule();
                     actionTimer.resetTimer();
                     pathState = Pathstate.closeGate2;
@@ -272,7 +272,7 @@ public class blueCloseAuto extends NextFTCOpMode {
                 break;
 
             case closeGate2:
-                if (actionTimer.getElapsedTimeSeconds() >= 2) {
+                if (actionTimer.getElapsedTimeSeconds() >= 1.2) {
                     stopper.INSTANCE.stop.schedule();
                     outtake.INSTANCE.Stop().schedule();
                     pathStarted = false;
@@ -292,7 +292,7 @@ public class blueCloseAuto extends NextFTCOpMode {
 
             case grabGPP:
                 if (!pathStarted) {
-                    follower.followPath(grabGPP, 0.5, true);
+                    follower.followPath(grabGPP, 1, true);
                     pathStarted = true;
                 } else if (!follower.isBusy()) {
                     pathStarted = false;
@@ -314,7 +314,7 @@ public class blueCloseAuto extends NextFTCOpMode {
                 break;
 
             case wait3:
-                if (actionTimer.getElapsedTimeSeconds() >= 0.75) {
+                if (actionTimer.getElapsedTimeSeconds() >= 0.25) {
                     stopper.INSTANCE.go.schedule();
                     actionTimer.resetTimer();
                     pathState = Pathstate.closeGate3;
@@ -322,7 +322,7 @@ public class blueCloseAuto extends NextFTCOpMode {
                 break;
 
             case closeGate3:
-                if (actionTimer.getElapsedTimeSeconds() >= 2) {
+                if (actionTimer.getElapsedTimeSeconds() >= 1.2) {
                     stopper.INSTANCE.stop.schedule();
                     outtake.INSTANCE.Stop().schedule();
                     pathStarted = false;

@@ -58,11 +58,11 @@ public class LL3a implements Subsystem {
         );
     }
 
-    public double getDistanceToTag() {
+    public double Tx() {
         return latest != null ? latest.getTx() : 0;
     }
 
-    public double getTy() {
+    public double Ty() {
         return latest != null ? latest.getTy() : 0;
     }
 }

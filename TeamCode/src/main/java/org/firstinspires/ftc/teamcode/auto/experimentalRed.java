@@ -40,7 +40,7 @@ public class experimentalRed extends NextFTCOpMode {
     private final Pose scorePose   = new Pose(95, 95, Math.toRadians(40));
     private final Pose goPGP = new Pose(100, 57, Math.toRadians(0));
     private final Pose PGPc        = new Pose(68, 70);
-    private final Pose gPGP       = new Pose(126, 88, Math.toRadians(0));
+    private final Pose gPGP       = new Pose(133, 57, Math.toRadians(0));
     private final Pose openGate = new Pose(133, 60, Math.toRadians(30));
     private final Pose openGatec = new Pose(115, 60);
     private final Pose returnGatec   = new Pose(95, 55);

@@ -19,6 +19,7 @@ import org.firstinspires.ftc.teamcode.subsystems.intake;
 import org.firstinspires.ftc.teamcode.subsystems.outtake;
 import org.firstinspires.ftc.teamcode.subsystems.shootadj;
 import org.firstinspires.ftc.teamcode.subsystems.stopper;
+import org.firstinspires.ftc.teamcode.subsystems.turret;
 import org.firstinspires.ftc.teamcode.vision.LL3a;
 import org.firstinspires.ftc.teamcode.vision.interpolation_table;
 
@@ -44,6 +45,9 @@ public class blueTele extends NextFTCOpMode {
     private Supplier<PathChain> Shoot;
     private TelemetryManager telemetryM;
     private static final double LLCorrection = 0.02;
+    private boolean seeking = false;
+    private boolean seekDirectionRight = true;
+
 
 
 
@@ -58,7 +62,7 @@ public class blueTele extends NextFTCOpMode {
 
         addComponents(
                 new SubsystemComponent(outtake.INSTANCE, intake.INSTANCE, brakeL.INSTANCE, brakeR.INSTANCE,
-                        shootadj.INSTANCE, stopper.INSTANCE, LL3a.INSTANCE),
+                        shootadj.INSTANCE, stopper.INSTANCE, LL3a.INSTANCE, turret.INSTANCE),
                 BulkReadComponent.INSTANCE,
                 BindingsComponent.INSTANCE
         );
@@ -96,6 +100,8 @@ public class blueTele extends NextFTCOpMode {
                 .whenBecomesTrue(intake.INSTANCE.Out())
                 .whenBecomesTrue(outtake.INSTANCE.reverse())
                 .whenBecomesTrue(stopper.INSTANCE.go)
+                .whenBecomesFalse(outtake.INSTANCE.idle())
+                .whenBecomesFalse(stopper.INSTANCE.stop)
                 .whenBecomesFalse(intake.INSTANCE.In());
 
         button(() -> gamepad1.b)
@@ -139,24 +145,6 @@ public class blueTele extends NextFTCOpMode {
                 .whenBecomesTrue(outtake.INSTANCE.Outc())
                 .whenBecomesFalse(outtake.INSTANCE.idle());
 
-        button(() -> gamepad2.right_bumper)
-                .whenBecomesTrue(() -> {
-                    if (LL3a.INSTANCE != null && LL3a.INSTANCE.hasValidTarget()) {
-
-                        double d = LL3a.INSTANCE.getDistanceToTag();
-                        double rpm = interpolation_table.rpmForDistance(d);
-                        double hood = interpolation_table.hoodForDistance(d);
-
-                        outtake.INSTANCE.targetVel(rpm).schedule();
-                        shootadj.INSTANCE.getAngleL();
-                        shootadj.INSTANCE.getAngleR();
-                    }
-                })
-                .whenBecomesFalse(() -> {
-                    outtake.INSTANCE.idle().schedule();
-                    shootadj.INSTANCE.midL().schedule();
-                    shootadj.INSTANCE.midR().schedule();
-                });
 
 
 
@@ -173,12 +161,7 @@ public class blueTele extends NextFTCOpMode {
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
         telemetry.addData("heading", follower.getPose().getHeading());
-        if (LL3a.INSTANCE != null) {
-            telemetry.addData("LL has target", LL3a.INSTANCE.hasValidTarget());
-            telemetry.addData("LL distance", LL3a.INSTANCE.getDistanceToTag());
-        } else {
-            telemetry.addLine("LL3a INSTANCE NULL");
-        }
+
 
 
 
@@ -193,12 +176,17 @@ public class blueTele extends NextFTCOpMode {
                 LL3a.INSTANCE != null &&
                 LL3a.INSTANCE.hasValidTarget()) {
 
-            double tx = LL3a.INSTANCE.getDistanceToTag(); // horizontal error in degrees
+            double tx = LL3a.INSTANCE.Tx(); // horizontal error in degrees
             rotInput = -tx * LLCorrection;
             if (Math.abs(tx) < 0.5) { //saftety to prevent oscolation. Remove if unneeded
                 rotInput = 0;
             }
         }
+
+
+
+
+
 
 
         if (!automatedDrive) {
@@ -220,5 +208,6 @@ public class blueTele extends NextFTCOpMode {
         BindingManager.reset();
         intake.INSTANCE.Stop().schedule();
         outtake.INSTANCE.Stop().schedule();
+        turret.INSTANCE.stop().schedule();
     }
 }
