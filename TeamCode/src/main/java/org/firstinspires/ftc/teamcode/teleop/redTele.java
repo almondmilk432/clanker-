@@ -12,6 +12,7 @@ import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.auto.redClose12C;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.brakeL;
 import org.firstinspires.ftc.teamcode.subsystems.brakeR;
@@ -42,11 +43,10 @@ public class redTele extends NextFTCOpMode {
     private Follower follower;
     // public static Pose startingPose;
     private boolean automatedDrive;
-    private Supplier<PathChain> Shoot;
+    private Supplier<PathChain> ShootC, ShootF;
     private TelemetryManager telemetryM;
     private static final double LLCorrection = 0.02;
-    private boolean seeking = false;
-    private boolean seekDirectionRight = true;
+
 
 
 
@@ -54,7 +54,7 @@ public class redTele extends NextFTCOpMode {
 
     public void onInit() {
         follower = Constants.createFollower(hardwareMap);
-        //follower.setStartingPose(blueFarAuto.autoEndPose);
+        follower.setStartingPose(redClose12C.redEndC);
         follower.update();
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
@@ -68,10 +68,17 @@ public class redTele extends NextFTCOpMode {
         );
 
 
-        Shoot = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(85, 95))))
-                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(50), 0.8))
+        ShootC = () -> follower.pathBuilder() //Lazy Curve Generation
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(100, 100))))
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(40), 0.8))
                 .build();
+
+        ShootF = () -> follower.pathBuilder()
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(84, 19))))
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(67), 0.8))
+                .build();
+
+
 
 
     }
@@ -137,17 +144,13 @@ public class redTele extends NextFTCOpMode {
                 .whenBecomesTrue(outtake.INSTANCE.Outs())
                 .whenBecomesFalse(outtake.INSTANCE.idle());
 
-        button(() -> outtake.getVelocity() >= 900)
+        button(() -> outtake.getVelocity() >= 800)
                 .whenBecomesTrue(() -> gamepad2.rumble(150))
                 .whenBecomesFalse(() -> gamepad2.stopRumble());
 
-        button(()-> gamepad2.left_bumper)
+        button(()-> gamepad2.dpad_left)
                 .whenBecomesTrue(outtake.INSTANCE.Outc())
                 .whenBecomesFalse(outtake.INSTANCE.idle());
-
-
-
-
 
 
     }
@@ -168,12 +171,12 @@ public class redTele extends NextFTCOpMode {
 
         telemetry.update();
 
-        if (gamepad1.square)
+        if (gamepad1.y)
             follower.setPose(follower.getPose().withHeading(0));
 
         double rotInput = -gamepad1.right_stick_x;
 
-        if (gamepad2.touchpadWasPressed() &&
+        if (gamepad2.squareWasPressed() &&
                 LL3a.INSTANCE != null &&
                 LL3a.INSTANCE.hasValidTarget()) {
 
@@ -182,6 +185,34 @@ public class redTele extends NextFTCOpMode {
             if (Math.abs(tx) < 0.5) { //saftety to prevent oscolation. Remove if unneeded
                 rotInput = 0;
             }
+        }
+
+
+        if (gamepad2.right_bumper &&
+                LL3a.INSTANCE != null &&
+                LL3a.INSTANCE.hasValidTarget()) {
+
+            double distance = LL3a.INSTANCE.getDistance();
+            double rpm = interpolation_table.rpmForDistance(distance);
+
+            outtake.INSTANCE.targetVel(rpm).schedule();
+        }
+
+        //path following
+        if (gamepad1.leftBumperWasPressed()) {
+            follower.followPath(ShootC.get());
+            automatedDrive = true;
+        }
+        if (gamepad1.leftBumperWasReleased()) {
+            automatedDrive = false;
+        }
+
+        if (gamepad1.rightBumperWasPressed()) {
+            follower.followPath(ShootF.get());
+            automatedDrive = true;
+        }
+        if (gamepad1.rightBumperWasReleased()) {
+            automatedDrive = false;
         }
 
 

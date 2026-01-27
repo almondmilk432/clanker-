@@ -35,6 +35,8 @@ public class blueClose12C extends NextFTCOpMode {
     private Follower follower;
     private Timer pathTimer, actionTimer, opmodeTimer;
     private boolean pathStarted = false;
+    public static Pose blueEndC = new Pose();
+
 
     private final Pose startPose   = new Pose(122, 122, Math.toRadians(36)).mirror();
     private final Pose scorePose   = new Pose(97, 97, Math.toRadians(47)).mirror();
@@ -423,6 +425,10 @@ public class blueClose12C extends NextFTCOpMode {
 
     @Override
     public void onStop(){
+
+        follower.update();
+        blueClose12C.blueEndC = follower.getPose();
+
         intake.INSTANCE.Stop().schedule();
         outtake.INSTANCE.Stop().schedule();
     }
