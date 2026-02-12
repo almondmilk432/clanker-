@@ -147,6 +147,8 @@ public class blueTele extends NextFTCOpMode {
                 .whenBecomesTrue(outtake.INSTANCE.Outc())
                 .whenBecomesFalse(outtake.INSTANCE.idle());
 
+        button(() -> gamepad2.right_bumper)
+                .whenBecomesFalse(() -> outtake.INSTANCE.idle().schedule());
 
 
 
@@ -163,6 +165,9 @@ public class blueTele extends NextFTCOpMode {
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
         telemetry.addData("heading", follower.getPose().getHeading());
+        telemetry.addData("ll sees something:" , LL3a.INSTANCE.hasValidTarget());
+        telemetry.addData("TX", LL3a.INSTANCE.Tx());
+        telemetry.addData("Distance (m)", LL3a.INSTANCE.getDistance());
 
 
 
@@ -201,9 +206,7 @@ public class blueTele extends NextFTCOpMode {
             follower.followPath(ShootC.get());
             automatedDrive = true;
         }
-        if (gamepad1.leftBumperWasReleased()) {
-            automatedDrive = false;
-        }
+
 
         if (gamepad1.rightBumperWasPressed()) {
             follower.followPath(ShootF.get());

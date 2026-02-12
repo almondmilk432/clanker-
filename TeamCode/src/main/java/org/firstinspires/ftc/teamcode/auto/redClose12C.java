@@ -38,17 +38,17 @@ public class redClose12C extends NextFTCOpMode {
     public static Pose redEndC = new Pose();
 
     private final Pose startPose   = new Pose(122, 122, Math.toRadians(36));
-    private final Pose scorePose   = new Pose(97, 97, Math.toRadians(47));
-    private final Pose goPPG       = new Pose(95, 88, Math.toRadians(0));
+    private final Pose scorePose   = new Pose(96, 95, Math.toRadians(40));
+    private final Pose goPPG       = new Pose(96, 88, Math.toRadians(0));
     private final Pose PPGc        = new Pose(80, 100);
-    private final Pose gPPG        = new Pose(120, 88, Math.toRadians(0));
-    private final Pose openG = new Pose(120,75, Math.toRadians(0));
+    private final Pose gPPG        = new Pose(122, 88, Math.toRadians(0));
+    private final Pose openG = new Pose(122,76, Math.toRadians(0));
     private final Pose openGc = new Pose(130, 45);
-    private final Pose goPGP       = new Pose(90, 63, Math.toRadians(0));
-    private final Pose gPGP        = new Pose(126, 63, Math.toRadians(0));
+    private final Pose goPGP       = new Pose(90, 65, Math.toRadians(0));
+    private final Pose gPGP        = new Pose(129, 65, Math.toRadians(0));
     private final Pose returnPGP   = new Pose(95, 60);
-    private final Pose goGPP       = new Pose(90, 39, Math.toRadians(0));
-    private final Pose gGPP        = new Pose(126, 39, Math.toRadians(0));
+    private final Pose goGPP       = new Pose(90, 42, Math.toRadians(0));
+    private final Pose gGPP        = new Pose(129, 42, Math.toRadians(0));
     private final Pose leave       = new Pose(95, 80, Math.toRadians(40));
 
     private PathChain scorePreload, gotoPPG, grabPPG, scorePPG;
@@ -237,6 +237,7 @@ public class redClose12C extends NextFTCOpMode {
             case openGate:
                 if (!pathStarted) {
                     follower.followPath(openGate);
+                    actionTimer.resetTimer();
                     pathStarted = true;
                 } else if (!follower.isBusy()) {
                     pathStarted = false;
@@ -245,7 +246,7 @@ public class redClose12C extends NextFTCOpMode {
                 break;
 
             case waitG:
-                if (actionTimer.getElapsedTimeSeconds() >= .5) {
+                if (actionTimer.getElapsedTimeSeconds() >= 2) {
                     actionTimer.resetTimer();
                     pathState = Pathstate.reverse2;
                 }

@@ -39,17 +39,17 @@ public class blueClose12C extends NextFTCOpMode {
 
 
     private final Pose startPose   = new Pose(122, 122, Math.toRadians(36)).mirror();
-    private final Pose scorePose   = new Pose(97, 97, Math.toRadians(47)).mirror();
+    private final Pose scorePose   = new Pose(92, 96, Math.toRadians(42)).mirror();
     private final Pose goPPG       = new Pose(95, 88, Math.toRadians(0)).mirror();
     private final Pose PPGc        = new Pose(80, 100).mirror();
-    private final Pose gPPG        = new Pose(120, 88, Math.toRadians(0)).mirror();
+    private final Pose gPPG        = new Pose(119, 88, Math.toRadians(0)).mirror();
     private final Pose openG = new Pose(120,75, Math.toRadians(0)).mirror();
-    private final Pose openGc = new Pose(130, 45).mirror();
+    private final Pose openGc = new Pose(140, 50).mirror();
     private final Pose goPGP       = new Pose(90, 63, Math.toRadians(0)).mirror();
-    private final Pose gPGP        = new Pose(126, 63, Math.toRadians(0)).mirror();
+    private final Pose gPGP        = new Pose(124, 63, Math.toRadians(0)).mirror();
     private final Pose returnPGP   = new Pose(95, 60).mirror();
     private final Pose goGPP       = new Pose(90, 39, Math.toRadians(0)).mirror();
-    private final Pose gGPP        = new Pose(126, 39, Math.toRadians(0)).mirror();
+    private final Pose gGPP        = new Pose(124, 39, Math.toRadians(0)).mirror();
     private final Pose leave       = new Pose(95, 80, Math.toRadians(40)).mirror();
 
     private PathChain scorePreload, gotoPPG, grabPPG, scorePPG;

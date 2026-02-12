@@ -13,7 +13,8 @@ public class LL3a implements Subsystem {
 
     private Limelight3A limelight;
     private LLResult latest;
-    private Pose3D pose;
+    private Pose3D mtPose;
+
 
     private final int startupPipeline;
 
@@ -35,27 +36,32 @@ public class LL3a implements Subsystem {
     public void periodic() {
         latest = limelight.getLatestResult();
 
+        mtPose = latest.getBotpose();
+/*
+        mtPose = latest.getBotpose_MT2();
         if (latest != null && latest.isValid()) {
-            pose = latest.getBotpose();   // MT1
+            pose = latest.getBotpose();
         } else {
             pose = null;
         }
+        */
+
     }
 
     public boolean hasValidTarget() {
-        return pose != null;
+        return mtPose != null;
     }
 
     public Pose3D getPose() {
-        return pose;
+        return mtPose;
     }
 
     public double getDistance() {
-        if (pose == null) return 0;
-        return Math.hypot(
-                pose.getPosition().x,
-                pose.getPosition().y
-        );
+        if (mtPose == null) return 0;
+
+        double x = mtPose.getPosition().x;
+        double y = mtPose.getPosition().y;
+        return Math.hypot(x, y);
     }
 
     public double Tx() {

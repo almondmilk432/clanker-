@@ -10,6 +10,8 @@ import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.brakeL;
 import org.firstinspires.ftc.teamcode.subsystems.brakeR;
@@ -20,6 +22,7 @@ import org.firstinspires.ftc.teamcode.subsystems.stopper;
 
 import dev.nextftc.ftc.components.BulkReadComponent;
 
+@Disabled
 @Autonomous(name = "redCloseAuto", group = "robot")
 public class redCloseAuto extends NextFTCOpMode {
 
